@@ -1,25 +1,24 @@
 // ============================================
 // SHARED CONTRACT — DO NOT EDIT DURING HACKATHON
 // Both Shahbaz and Debashish import from here.
-// Reference: docs/work_division.md & docs/trackguard_dhr_complete_blueprint.md
 // ============================================
 
 export interface HazardReport {
   id: string;
-  timestamp: string; // ISO 8601 UTC
+  timestamp: string;
 
   // Location
   latitude: number;
   longitude: number;
   accuracy: number;
   kmMarker: string;
-  section: string; // 'kurseong-ghum' | 'ghum-darjeeling'
+  section: string;
 
-  // Hazard (confirmed by gangman)
+  // Hazard — confirmed by gangman
   hazardType: HazardType;
   severity: Severity;
 
-  // AI suggestions (may differ from confirmed values - audit trail)
+  // AI suggestions — may differ from confirmed values
   aiSuggestedType: string;
   aiSuggestedSeverity: string;
   aiNote: string;
@@ -37,7 +36,7 @@ export interface HazardReport {
   syncTimestamp: string | null;
   retryCount: number;
 
-  // Meta
+  // Device metadata
   deviceInfo: string;
 }
 
@@ -50,7 +49,11 @@ export type HazardType =
   | 'vegetation'
   | 'other';
 
-export type Severity = 'low' | 'medium' | 'high' | 'critical';
+export type Severity =
+  | 'low'
+  | 'medium'
+  | 'high'
+  | 'critical';
 
 export type InspectionStatus =
   | 'open'
@@ -58,7 +61,11 @@ export type InspectionStatus =
   | 'inspection_required'
   | 'resolved';
 
-export type SyncStatus = 'pending' | 'syncing' | 'synced' | 'failed';
+export type SyncStatus =
+  | 'pending'
+  | 'syncing'
+  | 'synced'
+  | 'failed';
 
 export interface AIAnalysisResult {
   type: HazardType;
@@ -66,45 +73,82 @@ export interface AIAnalysisResult {
   note: string;
 }
 
-export interface GeoLocationResult {
-  latitude: number;
-  longitude: number;
-  accuracy: number;
-  kmMarker: string;
-  section: string;
-  nearestWaypointName?: string;
-  distanceToTrackKm?: number;
-  isSimulated?: boolean;
-}
-
-export interface VisualInspectionCues {
-  mudSiltPercent: number;
-  foliagePercent: number;
-  waterSpecularPercent: number;
-  ballastTextureScore: number;
-  transverseCrackDetected: boolean;
-  summary: string;
-}
-
-// Hazard options for manual fallback & dropdowns
-export const HAZARD_OPTIONS: { value: HazardType; label: string; icon: string }[] = [
-  { value: 'slip', label: 'Slip / Landslide', icon: '🏔️' },
-  { value: 'rockfall', label: 'Rockfall', icon: '🪨' },
-  { value: 'blocked_drain', label: 'Blocked Drain', icon: '🚰' },
-  { value: 'damaged_wall', label: 'Damaged Retaining Wall', icon: '🧱' },
-  { value: 'track_defect', label: 'Track Defect', icon: '🛤️' },
-  { value: 'vegetation', label: 'Vegetation Overgrowth', icon: '🌿' },
-  { value: 'other', label: 'Other', icon: '⚠️' },
+export const HAZARD_OPTIONS: {
+  value: HazardType;
+  label: string;
+  icon: string;
+}[] = [
+  {
+    value: 'slip',
+    label: 'Slip / Landslide',
+    icon: 'MountainSnow',
+  },
+  {
+    value: 'rockfall',
+    label: 'Rockfall',
+    icon: 'Layers',
+  },
+  {
+    value: 'blocked_drain',
+    label: 'Blocked Drain',
+    icon: 'Droplets',
+  },
+  {
+    value: 'damaged_wall',
+    label: 'Damaged Retaining Wall',
+    icon: 'BrickWall',
+  },
+  {
+    value: 'track_defect',
+    label: 'Track Defect',
+    icon: 'TrainTrack',
+  },
+  {
+    value: 'vegetation',
+    label: 'Vegetation Overgrowth',
+    icon: 'Trees',
+  },
+  {
+    value: 'other',
+    label: 'Other',
+    icon: 'AlertTriangle',
+  },
 ];
 
-export const SEVERITY_OPTIONS: { value: Severity; label: string; color: string }[] = [
-  { value: 'low', label: 'Low', color: '#51cf66' },
-  { value: 'medium', label: 'Medium', color: '#fab005' },
-  { value: 'high', label: 'High', color: '#ff922b' },
-  { value: 'critical', label: 'Critical', color: '#ff6b6b' },
+export const SEVERITY_OPTIONS: {
+  value: Severity;
+  label: string;
+  color: string;
+}[] = [
+  {
+    value: 'low',
+    label: 'Low',
+    color: '#51cf66',
+  },
+  {
+    value: 'medium',
+    label: 'Medium',
+    color: '#fab005',
+  },
+  {
+    value: 'high',
+    label: 'High',
+    color: '#ff922b',
+  },
+  {
+    value: 'critical',
+    label: 'Critical',
+    color: '#ff6b6b',
+  },
 ];
 
 export const SECTIONS = [
-  { id: 'kurseong-ghum', label: 'Kurseong → Ghum' },
-  { id: 'ghum-darjeeling', label: 'Ghum → Darjeeling' },
+  {
+    id: 'kurseong-ghum',
+    label: 'Kurseong → Ghum',
+  },
+  {
+    id: 'ghum-darjeeling',
+    label: 'Ghum → Darjeeling',
+  },
 ];
