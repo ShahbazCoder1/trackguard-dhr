@@ -18,21 +18,12 @@ import {
 
 import type { HazardReport } from '@/lib/types';
 import StatusBadge from './StatusBadge';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface ReportCardProps {
   report: HazardReport;
   onClick?: () => void;
 }
-
-const HAZARD_LABELS: Record<string, string> = {
-  slip: 'Slip / Landslide',
-  rockfall: 'Rockfall',
-  blocked_drain: 'Blocked Drain',
-  damaged_wall: 'Damaged Retaining Wall',
-  track_defect: 'Track Defect',
-  vegetation: 'Vegetation Overgrowth',
-  other: 'Other',
-};
 
 const HAZARD_ICONS: Record<string, LucideIcon> = {
   slip: Mountain,
@@ -74,6 +65,7 @@ export default function ReportCard({
   report,
   onClick,
 }: ReportCardProps) {
+  const { t, hazardLabel, severityLabel, sectionLabel } = useLanguage();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -91,7 +83,7 @@ export default function ReportCard({
     };
   }, [report.photoThumbnail]);
 
-  const hazardLabel = HAZARD_LABELS[report.hazardType] ?? 'Other';
+  const label = hazardLabel(report.hazardType);
   const HazardIcon = HAZARD_ICONS[report.hazardType] ?? Construction;
   const Container = onClick ? 'button' : 'article';
 
@@ -112,7 +104,7 @@ export default function ReportCard({
           : ''
       }`}
       style={{ borderColor: 'var(--tg-outline)', backgroundColor: 'var(--tg-surface-container)' }}
-      aria-label={onClick ? `Open ${hazardLabel} report` : undefined}
+      aria-label={onClick ? `Open ${label} report` : undefined}
     >
       <div className="flex flex-1 p-3">
         {/* Thumbnail */}
@@ -123,7 +115,7 @@ export default function ReportCard({
           {imageUrl ? (
             <img
               src={imageUrl}
-              alt={hazardLabel}
+              alt={label}
               className="h-full w-full object-cover"
               loading="lazy"
             />
@@ -139,7 +131,7 @@ export default function ReportCard({
           <div className="flex items-start justify-between gap-2">
             <h3 className="truncate font-semibold leading-tight" style={{ color: 'var(--tg-on-surface)' }}>
               <HazardIcon className="mr-1 inline h-4 w-4 align-[-2px]" style={{ color: 'var(--tg-primary)' }} aria-hidden="true" />
-              {hazardLabel}
+              {label}
             </h3>
 
             {/* Inline Severity Chip */}
@@ -150,7 +142,7 @@ export default function ReportCard({
                 color: `var(--tg-severity-${report.severity})`,
               }}
             >
-              {report.severity}
+              {severityLabel(report.severity)}
             </span>
           </div>
 
@@ -158,7 +150,7 @@ export default function ReportCard({
             <div className="flex items-center gap-1">
               <MapPin className="h-3 w-3 shrink-0" />
               <span className="truncate font-medium" style={{ color: 'var(--tg-on-surface)' }}>
-                {report.section} {report.kmMarker ? `· KM ${report.kmMarker}` : ''}
+                {sectionLabel(report.section)} {report.kmMarker ? `· KM ${report.kmMarker}` : ''}
               </span>
             </div>
 
@@ -188,7 +180,7 @@ export default function ReportCard({
           <>
             <CheckCircle2 className="h-3.5 w-3.5" style={{ color: 'var(--tg-sync-synced)' }} />
             <span style={{ color: 'var(--tg-sync-synced)' }}>
-              Synced {report.syncTimestamp ? `· ${formatTimestamp(report.syncTimestamp)}` : ''}
+              {t('allSynced')} {report.syncTimestamp ? `· ${formatTimestamp(report.syncTimestamp)}` : ''}
             </span>
           </>
         )}
@@ -198,14 +190,14 @@ export default function ReportCard({
             <div className="flex h-3.5 w-3.5 items-center justify-center">
               <div className="h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--tg-sync-pending)' }} />
             </div>
-            <span style={{ color: 'var(--tg-sync-pending)' }}>Waiting to sync</span>
+            <span style={{ color: 'var(--tg-sync-pending)' }}>{t('waitingToSync')}</span>
           </>
         )}
 
         {report.syncStatus === 'syncing' && (
           <>
             <RefreshCw className="tg-spin h-3.5 w-3.5" style={{ color: 'var(--tg-sync-syncing)' }} />
-            <span style={{ color: 'var(--tg-sync-syncing)' }}>Syncing…</span>
+            <span style={{ color: 'var(--tg-sync-syncing)' }}>{t('syncingProgress')}</span>
           </>
         )}
 
@@ -213,7 +205,7 @@ export default function ReportCard({
           <>
             <AlertTriangle className="h-3.5 w-3.5" style={{ color: 'var(--tg-sync-failed)' }} />
             <span style={{ color: 'var(--tg-sync-failed)' }}>
-              Sync failed {report.retryCount ? `· Retried ${report.retryCount} times` : ''}
+              {t('syncFailed')} {report.retryCount ? `· Retried ${report.retryCount} times` : ''}
             </span>
           </>
         )}

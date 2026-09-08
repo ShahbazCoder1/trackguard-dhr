@@ -18,8 +18,11 @@ import { getPendingCount } from '@/lib/storage';
 import { getCustomModelInfo } from '@/lib/llm';
 import BottomNav from '@/components/BottomNav';
 import ModelSettingsModal from '@/components/ModelSettingsModal';
+import LanguageSelector from '@/components/LanguageSelector';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function HomePage() {
+  const { t } = useLanguage();
   const [pendingCount, setPendingCount] = useState<number>(0);
   const [isOnline, setIsOnline] = useState<boolean>(true);
   const [isModelModalOpen, setIsModelModalOpen] = useState<boolean>(false);
@@ -78,7 +81,7 @@ export default function HomePage() {
             <div>
               <div className="flex items-center gap-1.5">
                 <h1 className="text-base font-bold tracking-tight" style={{ color: 'var(--tg-on-surface)' }}>
-                  TrackGuard
+                  {t('brandTitle')}
                 </h1>
                 <span
                   className="rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold"
@@ -88,31 +91,36 @@ export default function HomePage() {
                 </span>
               </div>
               <p className="text-[11px] font-medium" style={{ color: 'var(--tg-on-surface-variant)' }}>
-                Darjeeling Himalayan Railway · Gangman Logbook
+                {t('brandSubtitle')}
               </p>
             </div>
           </div>
 
-          {/* Network Status Badge */}
-          <div
-            className="flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium"
-            style={{
-              backgroundColor: isOnline ? 'var(--tg-sync-synced-container)' : 'var(--tg-surface-container-high)',
-              borderColor: isOnline ? 'transparent' : 'var(--tg-outline)',
-              color: isOnline ? 'var(--tg-sync-synced)' : 'var(--tg-on-surface-variant)',
-            }}
-          >
-            {isOnline ? (
-              <>
-                <Wifi className="h-3.5 w-3.5" />
-                <span>Station Signal</span>
-              </>
-            ) : (
-              <>
-                <WifiOff className="h-3.5 w-3.5" />
-                <span>Track Offline</span>
-              </>
-            )}
+          <div className="flex items-center gap-2">
+            {/* Language Selector */}
+            <LanguageSelector compact />
+
+            {/* Network Status Badge */}
+            <div
+              className="flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium"
+              style={{
+                backgroundColor: isOnline ? 'var(--tg-sync-synced-container)' : 'var(--tg-surface-container-high)',
+                borderColor: isOnline ? 'transparent' : 'var(--tg-outline)',
+                color: isOnline ? 'var(--tg-sync-synced)' : 'var(--tg-on-surface-variant)',
+              }}
+            >
+              {isOnline ? (
+                <>
+                  <Wifi className="h-3.5 w-3.5" />
+                  <span>{t('stationSignal')}</span>
+                </>
+              ) : (
+                <>
+                  <WifiOff className="h-3.5 w-3.5" />
+                  <span>{t('trackOffline')}</span>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -132,16 +140,16 @@ export default function HomePage() {
           </div>
           <div className="space-y-1 text-xs">
             <div className="flex items-center gap-2 font-semibold tracking-wide" style={{ color: 'var(--tg-on-surface)' }}>
-              <span>Alignment Inspection Mode</span>
+              <span>{t('inspectionModeTitle')}</span>
               <span
                 className="rounded px-1.5 py-0.5 font-mono text-[10px]"
                 style={{ backgroundColor: 'var(--tg-surface-container-high)', color: 'var(--tg-on-surface-variant)' }}
               >
-                100% Offline
+                {t('offlineTag')}
               </span>
             </div>
             <p className="text-[12px] leading-relaxed" style={{ color: 'var(--tg-on-surface-variant)' }}>
-              Record rockfalls, slope slips, and culvert blockages on track. Reports queue locally until the next railway station.
+              {t('inspectionModeDesc')}
             </p>
           </div>
         </div>
@@ -162,7 +170,7 @@ export default function HomePage() {
             </div>
             <div className="text-left">
               <div className="flex items-center gap-1.5 text-xs font-semibold" style={{ color: 'var(--tg-on-surface)' }}>
-                <span>Gemma 4 WebGPU Engine</span>
+                <span>{t('gemmaEngine')}</span>
                 <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: 'var(--tg-sync-synced)' }} />
               </div>
               <div className="text-[11px]" style={{ color: 'var(--tg-on-surface-variant)' }}>
@@ -180,7 +188,7 @@ export default function HomePage() {
             className="rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors"
             style={{ backgroundColor: 'var(--tg-surface-container-high)', borderColor: 'var(--tg-outline)', color: 'var(--tg-on-surface)' }}
           >
-            Configure
+            {t('configure')}
           </span>
         </button>
 
@@ -209,11 +217,11 @@ export default function HomePage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2 text-lg font-bold tracking-tight" style={{ color: 'var(--tg-on-surface)' }}>
-                      <span>NEW REPORT</span>
+                      <span>{t('newReportCta')}</span>
                     </div>
                     <div className="mt-0.5 flex items-center gap-1.5 text-xs font-medium" style={{ color: 'var(--tg-on-surface-variant)' }}>
                       <Sparkles className="h-3.5 w-3.5" style={{ color: 'var(--tg-primary)' }} />
-                      <span>Photo + GPS + Gemma 4 AI</span>
+                      <span>{t('newReportSub')}</span>
                     </div>
                   </div>
                 </div>
@@ -249,20 +257,20 @@ export default function HomePage() {
                     className="rounded-full border px-2 py-0.5 text-xs font-semibold"
                     style={{ backgroundColor: 'var(--tg-sync-pending-container)', color: 'var(--tg-sync-pending)', borderColor: 'transparent' }}
                   >
-                    {pendingCount} Pending
+                    {pendingCount} {t('pendingCountLabel')}
                   </span>
                 ) : (
                   <span className="text-[11px] font-medium" style={{ color: 'var(--tg-on-surface-variant)' }}>
-                    Synced
+                    {t('syncedLabel')}
                   </span>
                 )}
               </div>
               <div>
                 <div className="text-sm font-semibold" style={{ color: 'var(--tg-on-surface)' }}>
-                  My Reports
+                  {t('myReportsCardTitle')}
                 </div>
                 <div className="text-[11px]" style={{ color: 'var(--tg-on-surface-variant)' }}>
-                  Offline queue & sync
+                  {t('myReportsCardSub')}
                 </div>
               </div>
             </div>
@@ -287,10 +295,10 @@ export default function HomePage() {
               </div>
               <div>
                 <div className="text-sm font-semibold" style={{ color: 'var(--tg-on-surface)' }}>
-                  Section View
+                  {t('dashboardCardTitle')}
                 </div>
                 <div className="text-[11px]" style={{ color: 'var(--tg-on-surface-variant)' }}>
-                  Supervisor overview
+                  {t('dashboardCardSub')}
                 </div>
               </div>
             </div>
@@ -304,7 +312,7 @@ export default function HomePage() {
         >
           <div className="flex items-center gap-2" style={{ color: 'var(--tg-on-surface)' }}>
             <TrainTrack className="h-4 w-4" style={{ color: 'var(--tg-primary)' }} />
-            <span>Active Sector: Kurseong ↔ Ghum ↔ Darjeeling</span>
+            <span>{t('activeSector')}</span>
           </div>
           <span className="font-mono text-[11px]" style={{ color: 'var(--tg-on-surface-variant)' }}>
             88 km
@@ -315,7 +323,7 @@ export default function HomePage() {
       {/* Footer / Helper */}
       <footer className="mx-auto w-full max-w-md px-4 text-center md:max-w-3xl">
         <p className="text-[11px]" style={{ color: 'var(--tg-on-surface-variant)' }}>
-          TrackGuard DHR · GDG Siliguri Toy Train Edition · On-Device Gemma 4
+          {t('footerText')}
         </p>
       </footer>
 
