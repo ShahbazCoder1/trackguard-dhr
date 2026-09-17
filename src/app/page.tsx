@@ -179,7 +179,7 @@ export default function HomePage() {
                     Local: {modelInfo.name}
                   </span>
                 ) : (
-                  'Hugging Face CDN (Auto-cached)'
+                  t('huggingFaceCdn')
                 )}
               </div>
             </div>

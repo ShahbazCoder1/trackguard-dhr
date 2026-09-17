@@ -5,11 +5,14 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2, AlertTriangle, CheckCircle2, X, TrainTrack } from 'lucide-react';
 import Link from 'next/link';
 import Camera from '@/components/Camera';
+import LanguageSelector from '@/components/LanguageSelector';
 import { getCurrentPosition, GeoLocationResult, DHR_WAYPOINTS } from '@/lib/geo';
 import { useReport } from '@/lib/ReportContext';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function NewReportPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const { setDraftPhoto, setDraftLocation } = useReport();
 
   const [location, setLocation] = useState<GeoLocationResult | null>(null);
@@ -76,43 +79,46 @@ export default function NewReportPage() {
           href="/"
           className="flex items-center gap-1.5 text-xs font-semibold text-white/90 hover:text-white bg-black/50 px-3 py-1.5 rounded-full border border-white/20 backdrop-blur-sm"
         >
-          <ArrowLeft className="h-4 w-4" /> Cancel
+          <ArrowLeft className="h-4 w-4" /> {t('cancel')}
         </Link>
 
-        {/* GPS Lock Status Badge / DHR Station Simulator */}
-        <button
-          type="button"
-          onClick={() => setShowStationPicker((prev) => !prev)}
-          className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border backdrop-blur-sm transition-all hover:bg-black/60"
-          title="Click to simulate any DHR railway station"
-        >
-          {gpsStatus === 'acquiring' && (
-            <div className="flex items-center gap-1.5 text-amber-300 bg-amber-950/60 border-amber-600/50 px-2 py-0.5 rounded-full">
-              <Loader2 className="h-3 w-3 animate-spin" />
-              <span>Locking GPS...</span>
-            </div>
-          )}
-          {gpsStatus === 'locked' && location && (
-            <div className="flex items-center gap-1.5 text-emerald-300 bg-emerald-950/70 border-emerald-600/50 px-2 py-0.5 rounded-full">
-              <CheckCircle2 className="h-3 w-3 text-emerald-400" />
-              <span>
-                {location.nearestStationName || `KM ${location.kmMarker}`}
-              </span>
-              <span className="text-[10px] text-zinc-400 font-mono">
-                {location.isSimulated ? '(Home Sim)' : `(±${Math.round(location.accuracy)}m)`}
-              </span>
-            </div>
-          )}
-          {gpsStatus === 'failed' && (
-            <div
-              className="flex items-center gap-1.5 text-orange-300 bg-orange-950/70 border-orange-600/50 px-2 py-0.5 rounded-full"
-              title={gpsErrorMsg || 'Manual entry active'}
-            >
-              <AlertTriangle className="h-3 w-3" />
-              <span>KM {location?.kmMarker || '51.0'} (Manual)</span>
-            </div>
-          )}
-        </button>
+        <div className="flex items-center gap-2">
+          <LanguageSelector compact />
+          {/* GPS Lock Status Badge / DHR Station Simulator */}
+          <button
+            type="button"
+            onClick={() => setShowStationPicker((prev) => !prev)}
+            className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border backdrop-blur-sm transition-all hover:bg-black/60"
+            title="Click to simulate any DHR railway station"
+          >
+            {gpsStatus === 'acquiring' && (
+              <div className="flex items-center gap-1.5 text-amber-300 bg-amber-950/60 border-amber-600/50 px-2 py-0.5 rounded-full">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                <span>{t('lockingGps')}</span>
+              </div>
+            )}
+            {gpsStatus === 'locked' && location && (
+              <div className="flex items-center gap-1.5 text-emerald-300 bg-emerald-950/70 border-emerald-600/50 px-2 py-0.5 rounded-full">
+                <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                <span>
+                  {location.nearestStationName || `KM ${location.kmMarker}`}
+                </span>
+                <span className="text-[10px] text-zinc-400 font-mono">
+                  {location.isSimulated ? '(Home Sim)' : `(±${Math.round(location.accuracy)}m)`}
+                </span>
+              </div>
+            )}
+            {gpsStatus === 'failed' && (
+              <div
+                className="flex items-center gap-1.5 text-orange-300 bg-orange-950/70 border-orange-600/50 px-2 py-0.5 rounded-full"
+                title={gpsErrorMsg || 'Manual entry active'}
+              >
+                <AlertTriangle className="h-3 w-3" />
+                <span>KM {location?.kmMarker || '51.0'} ({t('manualKm')})</span>
+              </div>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Station Simulator Dropdown Modal */}
@@ -120,7 +126,7 @@ export default function NewReportPage() {
         <div className="absolute top-16 right-4 z-40 w-64 bg-[#161b24]/95 border border-slate-800 rounded-2xl p-3 shadow-2xl backdrop-blur text-xs space-y-2">
           <div className="flex items-center justify-between pb-1 border-b border-slate-800">
             <span className="font-bold text-amber-400 uppercase tracking-wider text-[10px]">
-              DHR Station Simulator
+              {t('stationSimulator')}
             </span>
             <button
               type="button"
@@ -131,7 +137,7 @@ export default function NewReportPage() {
             </button>
           </div>
           <p className="text-[11px] text-slate-400">
-            Testing at home? Select any DHR waypoint along the 88km line:
+            {t('stationSimulatorDesc')}
           </p>
           <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
             {DHR_WAYPOINTS.map((wp) => (

@@ -22,6 +22,7 @@ import {
   initLLM,
   GEMMA_4_E2B_MODEL_URL,
 } from '@/lib/llm';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface ModelSettingsModalProps {
   isOpen: boolean;
@@ -32,6 +33,7 @@ export default function ModelSettingsModal({
   isOpen,
   onClose,
 }: ModelSettingsModalProps) {
+  const { t } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [hasWebGPU, setHasWebGPU] = useState<boolean>(true);
@@ -74,7 +76,7 @@ export default function ModelSettingsModal({
       await initLLM();
       setTestResult({
         success: true,
-        message: 'Gemma 4 E2B initialized successfully via WebGPU!',
+        message: t('modelInitSuccess'),
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Initialization failed';
@@ -97,8 +99,8 @@ export default function ModelSettingsModal({
               <Cpu className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-white">Gemma 4 AI Settings</h3>
-              <p className="text-[11px] text-slate-400">On-Device WebGPU Inference</p>
+              <h3 className="font-bold text-sm text-white">{t('gemmaSettingsTitle')}</h3>
+              <p className="text-[11px] text-slate-400">{t('gemmaSettingsSub')}</p>
             </div>
           </div>
           <button
@@ -124,17 +126,17 @@ export default function ModelSettingsModal({
             ) : (
               <AlertCircle className="h-4 w-4 text-rose-400" />
             )}
-            <span>WebGPU Hardware Acceleration</span>
+            <span>{t('webgpuHardwareAccel')}</span>
           </div>
           <span className="uppercase text-[10px] px-2 py-0.5 rounded bg-slate-900/60 border border-current font-mono">
-            {hasWebGPU ? 'Available' : 'Missing / Off'}
+            {hasWebGPU ? t('hardwareAvailable') : t('hardwareMissing')}
           </span>
         </div>
 
         {/* Current Active Source */}
         <div className="bg-[#131720] border border-slate-800 rounded-xl p-3.5 space-y-2 text-xs">
           <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-            Active Model Source
+            {t('activeModelSource')}
           </div>
           {modelInfo.isCustom ? (
             <div className="flex items-center justify-between bg-amber-500/10 border border-amber-500/25 p-2.5 rounded-lg text-amber-300">
@@ -151,7 +153,7 @@ export default function ModelSettingsModal({
                 onClick={handleResetToCDN}
                 className="h-7 text-[11px] text-slate-400 hover:text-white"
               >
-                Reset to CDN
+                {t('resetToCdn')}
               </Button>
             </div>
           ) : (
@@ -161,7 +163,7 @@ export default function ModelSettingsModal({
                 <span className="font-medium">Hugging Face Web CDN (~2.0 GB)</span>
               </div>
               <span className="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded">
-                Default
+                {t('defaultBadge')}
               </span>
             </div>
           )}
@@ -185,10 +187,10 @@ export default function ModelSettingsModal({
             className="w-full h-11 bg-[#131720] hover:bg-slate-800/80 border border-amber-500/30 text-amber-300 font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
           >
             <Upload className="h-4 w-4" />
-            <span>Load Local &quot;gemma-4-E2B-it-web.litertlm&quot; from Downloads</span>
+            <span>{t('loadLocalModelCta')}</span>
           </Button>
           <p className="text-[10px] text-slate-400 text-center">
-            Pick your local file for instant 100% offline train/airplane mode demo.
+            {t('loadLocalModelDesc')}
           </p>
         </div>
 
@@ -203,12 +205,12 @@ export default function ModelSettingsModal({
             {isTesting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Initializing Gemma 4 into WebGPU memory...</span>
+                <span>{t('initializingModelProgress')}</span>
               </>
             ) : (
               <>
                 <RefreshCw className="h-4 w-4" />
-                <span>Test / Warm-Up Model Now</span>
+                <span>{t('testWarmupCta')}</span>
               </>
             )}
           </Button>
@@ -240,7 +242,7 @@ export default function ModelSettingsModal({
             onClick={onClose}
             className="border-slate-700 text-slate-300 hover:text-white text-xs"
           >
-            Close
+            {t('close')}
           </Button>
         </div>
       </div>

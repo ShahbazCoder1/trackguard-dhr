@@ -9,6 +9,7 @@ import {
 } from '@/lib/types';
 import { Textarea } from '@/components/ui/textarea';
 import HazardIcon from '@/components/HazardIcon';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface HazardSelectorProps {
   hazardType: HazardType;
@@ -33,13 +34,15 @@ export default function HazardSelector({
   onKmMarkerChange,
   disabled = false,
 }: HazardSelectorProps) {
+  const { t, hazardLabel, severityLabel } = useLanguage();
+
   return (
     <div className="space-y-5 text-slate-100">
       {/* 1. Track Location / KM Marker */}
       {onKmMarkerChange && (
         <div className="space-y-1.5">
           <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            DHR Alignment Km Marker
+            {t('kmMarkerLabel')}
           </label>
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono font-semibold text-slate-400 bg-slate-800 px-3 py-2 rounded-lg border border-slate-700">
@@ -50,7 +53,7 @@ export default function HazardSelector({
               value={kmMarker}
               onChange={(e) => onKmMarkerChange(e.target.value)}
               disabled={disabled}
-              placeholder="e.g. 74.2 (Ghum)"
+              placeholder={t('kmMarkerPlaceholder')}
               className="flex-1 rounded-lg border border-slate-800 bg-[#131720] px-3 py-2 text-sm font-semibold text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 focus:border-amber-500/50"
             />
           </div>
@@ -60,7 +63,7 @@ export default function HazardSelector({
       {/* 2. Hazard Type Grid Selection */}
       <div className="space-y-2">
         <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-          Hazard Classification (Human Confirmed)
+          {t('hazardClassificationTitle')}
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {HAZARD_OPTIONS.map((opt) => {
@@ -86,7 +89,7 @@ export default function HazardSelector({
                 >
                   <HazardIcon type={opt.value} className="h-4 w-4 shrink-0" />
                 </div>
-                <span className="truncate">{opt.label}</span>
+                <span className="truncate">{hazardLabel(opt.value)}</span>
               </button>
             );
           })}
@@ -96,7 +99,7 @@ export default function HazardSelector({
       {/* 3. Severity Level Selection */}
       <div className="space-y-2">
         <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-          Inspection Severity Level
+          {t('inspectionSeverityTitle')}
         </label>
         <div className="grid grid-cols-4 gap-2">
           {SEVERITY_OPTIONS.map((opt) => {
@@ -134,7 +137,7 @@ export default function HazardSelector({
                   isSelected ? styling.active : styling.inactive
                 }`}
               >
-                {opt.label}
+                {severityLabel(opt.value)}
               </button>
             );
           })}
@@ -145,15 +148,15 @@ export default function HazardSelector({
       <div className="space-y-1.5">
         <div className="flex justify-between items-center">
           <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Observational Inspection Note
+            {t('observationalNoteTitle')}
           </label>
-          <span className="text-[11px] text-slate-400">Factual details only</span>
+          <span className="text-[11px] text-slate-400">{t('factualOnly')}</span>
         </div>
         <Textarea
           value={note}
           onChange={(e) => onNoteChange(e.target.value)}
           disabled={disabled}
-          placeholder="Describe visible signs (e.g. mud slurry over culvert inlet, rail clearance obstructed by rockfall)..."
+          placeholder={t('notePlaceholder')}
           rows={3}
           className="text-sm border-slate-800 bg-[#131720] text-slate-100 placeholder:text-slate-500 focus-visible:ring-amber-500/50 resize-none font-normal rounded-lg"
         />

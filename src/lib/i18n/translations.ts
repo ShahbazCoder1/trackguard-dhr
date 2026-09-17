@@ -149,6 +149,39 @@ export interface Translations {
   allSeverities: string;
   allStatuses: string;
   allSections: string;
+
+  // Extra UI & Modal Keys
+  huggingFaceCdn: string;
+  usePhoto: string;
+  cameraUnavailable: string;
+  retryCamera: string;
+  selectPhotoFromDevice: string;
+  alignTrackHazard: string;
+  sunlightReady: string;
+  initializingCamera: string;
+  flipCamera: string;
+  photoPreviewUnavailable: string;
+  gemmaSettingsTitle: string;
+  gemmaSettingsSub: string;
+  webgpuHardwareAccel: string;
+  hardwareAvailable: string;
+  hardwareMissing: string;
+  activeModelSource: string;
+  defaultBadge: string;
+  loadLocalModelCta: string;
+  loadLocalModelDesc: string;
+  testWarmupCta: string;
+  initializingModelProgress: string;
+  modelInitSuccess: string;
+  resetToCdn: string;
+  close: string;
+  reportsFailedCount: string;
+  readingReports: string;
+  retryFailedReports: string;
+  visualInspectionFallback: string;
+  aiAnalysisReady: string;
+  idLabel: string;
+  today: string;
 }
 
 export const translations: Record<Language, Translations> = {
@@ -292,6 +325,38 @@ export const translations: Record<Language, Translations> = {
     allSeverities: 'All severity',
     allStatuses: 'All status',
     allSections: 'All sections',
+
+    huggingFaceCdn: 'Hugging Face CDN (Auto-cached)',
+    usePhoto: 'Use Photo',
+    cameraUnavailable: 'Camera Unavailable',
+    retryCamera: 'Retry Camera',
+    selectPhotoFromDevice: 'Select Photo from Device',
+    alignTrackHazard: 'ALIGN TRACK HAZARD',
+    sunlightReady: 'SUNLIGHT-READY',
+    initializingCamera: 'Initializing camera...',
+    flipCamera: 'Flip Camera (Front / Rear)',
+    photoPreviewUnavailable: 'Photo preview unavailable',
+    gemmaSettingsTitle: 'Gemma 4 AI Settings',
+    gemmaSettingsSub: 'On-Device WebGPU Inference',
+    webgpuHardwareAccel: 'WebGPU Hardware Acceleration',
+    hardwareAvailable: 'Available',
+    hardwareMissing: 'Missing / Off',
+    activeModelSource: 'Active Model Source',
+    defaultBadge: 'Default',
+    loadLocalModelCta: 'Load Local "gemma-4-E2B-it-web.litertlm" from Downloads',
+    loadLocalModelDesc: 'Pick your local file for instant 100% offline train/airplane mode demo.',
+    testWarmupCta: 'Test / Warm-Up Model Now',
+    initializingModelProgress: 'Initializing Gemma 4 into WebGPU memory...',
+    modelInitSuccess: 'Gemma 4 E2B initialized successfully via WebGPU!',
+    resetToCdn: 'Reset to CDN',
+    close: 'Close',
+    reportsFailedCount: 'failed',
+    readingReports: 'Reading reports saved on this device.',
+    retryFailedReports: 'Retry failed reports when you are ready.',
+    visualInspectionFallback: 'Visual inspection on DHR alignment.',
+    aiAnalysisReady: 'AI analysis ready. Review fields below.',
+    idLabel: 'ID',
+    today: 'Today',
   },
 
   bn: {
@@ -434,6 +499,38 @@ export const translations: Record<Language, Translations> = {
     allSeverities: 'সব তীব্রতা',
     allStatuses: 'সব অবস্থা',
     allSections: 'সব সেকশন',
+
+    huggingFaceCdn: 'হাগিং ফেস সিডিএন (ক্যাশড)',
+    usePhoto: 'ছবি ব্যবহার করুন',
+    cameraUnavailable: 'ক্যামেরা অনুপলব্ধ',
+    retryCamera: 'পুনরায় ক্যামেরা চেষ্টা করুন',
+    selectPhotoFromDevice: 'ডিভাইস থেকে ছবি বেছে নিন',
+    alignTrackHazard: 'ট্র্যাক বিপদ সোজা রাখুন',
+    sunlightReady: 'সূর্যের আলোয় স্পষ্ট',
+    initializingCamera: 'ক্যামেরা চালু হচ্ছে...',
+    flipCamera: 'ক্যামেরা পরিবর্তন করুন',
+    photoPreviewUnavailable: 'ছবির প্রাকদর্শন পাওয়া যায়নি',
+    gemmaSettingsTitle: 'জেমা ৪ এআই সেটিংস',
+    gemmaSettingsSub: 'অন-ডিভাইস WebGPU ইনফারেন্স',
+    webgpuHardwareAccel: 'WebGPU হার্ডওয়্যার অ্যাক্সিলারেটর',
+    hardwareAvailable: 'উপলব্ধ',
+    hardwareMissing: 'অনুপলব্ধ / বন্ধ',
+    activeModelSource: 'সক্রিয় মডেল সোর্স',
+    defaultBadge: 'ডিফল্ট',
+    loadLocalModelCta: 'ডাউনলোড থেকে "gemma-4-E2B-it-web.litertlm" ফাইল লোড করুন',
+    loadLocalModelDesc: '১০০% অফলাইন ট্রেনের ভিতর ডেমোর জন্য ফাইল বেছে নিন।',
+    testWarmupCta: 'এখনই মডেল টেস্ট করুন',
+    initializingModelProgress: 'WebGPU মেমরিতে জেমা ৪ লোড হচ্ছে...',
+    modelInitSuccess: 'WebGPU মাধ্যমে জেমা ৪ সফলভাবে চালিত হয়েছে!',
+    resetToCdn: 'সিডিএন-এ রিসেট করুন',
+    close: 'বন্ধ করুন',
+    reportsFailedCount: 'ব্যর্থ হয়েছে',
+    readingReports: 'সংরক্ষিত রিপোর্ট পড়া হচ্ছে।',
+    retryFailedReports: 'প্রস্তুত হলে ব্যর্থ রিপোর্ট পুনরায় চেষ্টা করুন।',
+    visualInspectionFallback: 'DHR এলাইনমেন্টে চাক্ষুষ পরিদর্শন।',
+    aiAnalysisReady: 'এআই বিশ্লেষণ প্রস্তুত। নিচের ঘরগুলো পরীক্ষা করুন।',
+    idLabel: 'আইডি',
+    today: 'আজ',
   },
 
   ne: {
@@ -576,5 +673,37 @@ export const translations: Record<Language, Translations> = {
     allSeverities: 'सबै गम्भीरता',
     allStatuses: 'सबै स्थिति',
     allSections: 'सबै सेक्सनहरू',
+
+    huggingFaceCdn: 'हगिङ फेसब्याट CDN (स्वतः क्यास)',
+    usePhoto: 'फोटो प्रयोग गर्नुहोस्',
+    cameraUnavailable: 'क्यामेरा उपलब्ध छैन',
+    retryCamera: 'पुनः क्यामेरा प्रयास गर्नुहोस्',
+    selectPhotoFromDevice: 'उपकरणबाट फोटो छान्नुहोस्',
+    alignTrackHazard: 'ट्र्याक जोखिम मिलाउनुहोस्',
+    sunlightReady: 'घाममा प्रष्ट देखिने',
+    initializingCamera: 'क्यामेरा सुरु हुँदैछ...',
+    flipCamera: 'क्यामेरा बदल्नुहोस्',
+    photoPreviewUnavailable: 'फोटो पूर्वावलोकन उपलब्ध छैन',
+    gemmaSettingsTitle: 'जेम्मा ४ AI सेटिङ',
+    gemmaSettingsSub: 'अन-डिभाइस WebGPU अनुमान',
+    webgpuHardwareAccel: 'WebGPU हार्डवेयर गतिवर्धक',
+    hardwareAvailable: 'उपलब्ध',
+    hardwareMissing: 'अनुपलब्ध / बन्द',
+    activeModelSource: 'सक्रिय मोडल स्रोत',
+    defaultBadge: 'पूर्वनिर्धारित',
+    loadLocalModelCta: 'डाउनलोडबाट स्थानीय "gemma-4-E2B-it-web.litertlm" लोड गर्नुहोस्',
+    loadLocalModelDesc: '१००% अफलाइन परीक्षणका लागि स्थानीय फाइल छान्नुहोस्।',
+    testWarmupCta: 'अहिले मोडल परीक्षण गर्नुहोस्',
+    initializingModelProgress: 'WebGPU मेमोरीमा जेम्मा ४ लोड हुँदैछ...',
+    modelInitSuccess: 'WebGPU मार्फत जेम्मा ४ सफलतापूर्वक सुरु भयो!',
+    resetToCdn: 'CDN मा रिसेट गर्नुहोस्',
+    close: 'बन्द गर्नुहोस्',
+    reportsFailedCount: 'असफल भयो',
+    readingReports: 'सुरक्षित रिपोर्टहरू पढिँदैछ।',
+    retryFailedReports: 'तयार भएपछि असफल रिपोर्टहरू पुनः प्रयास गर्नुहोस्।',
+    visualInspectionFallback: 'DHR मार्गमा प्रत्यक्ष निरीक्षण।',
+    aiAnalysisReady: 'AI विश्लेषण तयार छ। तलका विवरणहरू जाँच गर्नुहोस्।',
+    idLabel: 'ID',
+    today: 'आज',
   },
 };

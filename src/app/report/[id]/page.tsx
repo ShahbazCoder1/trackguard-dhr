@@ -18,12 +18,15 @@ import {
 import { Button } from '@/components/ui/button';
 import SeverityBadge from '@/components/SeverityBadge';
 import HazardIcon from '@/components/HazardIcon';
+import LanguageSelector from '@/components/LanguageSelector';
 import { getReportById, updateInspectionStatus } from '@/lib/storage';
 import { HazardReport, HAZARD_OPTIONS, InspectionStatus } from '@/lib/types';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function ReportDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { t, hazardLabel, severityLabel, statusLabel, sectionLabel, formatDate } = useLanguage();
   const reportId = params?.id as string;
 
   const [report, setReport] = useState<HazardReport | null>(null);
@@ -93,24 +96,20 @@ export default function ReportDetailPage() {
         <div className="p-3 bg-[#161b24] border border-slate-800 rounded-full text-slate-400">
           <FileText className="h-8 w-8 text-amber-400" />
         </div>
-        <h2 className="text-lg font-bold">Report Not Found</h2>
+        <h2 className="text-lg font-bold">{t('reportNotFound')}</h2>
         <p className="text-xs text-slate-400 text-center max-w-xs">
-          The requested inspection report could not be found in local storage.
+          {t('reportNotFoundDesc')}
         </p>
         <Link href="/queue">
           <Button className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs">
-            Return to Reports
+            {t('returnToReports')}
           </Button>
         </Link>
       </div>
     );
   }
 
-  const hazardOption = HAZARD_OPTIONS.find((h) => h.value === report.hazardType);
-  const formattedDate = new Date(report.timestamp).toLocaleString(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  });
+  const formattedDate = formatDate(report.timestamp);
 
   return (
     <div className="min-h-screen bg-[#0f131a] text-slate-100 pb-24">
@@ -121,12 +120,13 @@ export default function ReportDetailPage() {
           onClick={() => router.back()}
           className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" /> Back
+          <ArrowLeft className="h-4 w-4" /> {t('backButton')}
         </button>
         <div className="text-xs font-mono text-slate-400">
-          ID: {report.id.slice(0, 8)}...
+          {t('idLabel')}: {report.id.slice(0, 8)}...
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
+          <LanguageSelector compact />
           <span
             className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full border ${
               report.syncStatus === 'synced'
@@ -151,7 +151,7 @@ export default function ReportDetailPage() {
             />
           ) : (
             <div className="w-full h-48 flex items-center justify-center bg-[#131720] text-slate-400 text-xs">
-              Photo preview unavailable
+              {t('photoPreviewUnavailable')}
             </div>
           )}
 
@@ -180,17 +180,17 @@ export default function ReportDetailPage() {
               </div>
               <div>
                 <div className="text-xs text-slate-400 font-medium uppercase tracking-wider">
-                  Confirmed Hazard
+                  {t('confirmedHazard')}
                 </div>
                 <div className="text-base font-bold text-white">
-                  {hazardOption?.label || report.hazardType}
+                  {hazardLabel(report.hazardType)}
                 </div>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-[10px] text-slate-400 uppercase font-mono">Status</div>
+              <div className="text-[10px] text-slate-400 uppercase font-mono">{t('statusLabel')}</div>
               <div className="text-xs font-semibold capitalize text-amber-400">
-                {report.inspectionStatus.replace('_', ' ')}
+                {statusLabel(report.inspectionStatus)}
               </div>
             </div>
           </div>
@@ -199,10 +199,10 @@ export default function ReportDetailPage() {
           <div className="p-3 bg-[#131720] rounded-lg border border-slate-800 space-y-1">
             <div className="text-[11px] font-semibold text-slate-400 uppercase flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-              Gangman&apos;s Official Inspection Note
+              {t('gangmanNoteTitle')}
             </div>
             <p className="text-xs text-slate-200 leading-relaxed font-normal">
-              {report.userNote || 'No additional note provided.'}
+              {report.userNote || t('noNoteProvided')}
             </p>
           </div>
         </div>
@@ -212,22 +212,22 @@ export default function ReportDetailPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
               <Sparkles className="h-4 w-4" />
-              <span>Original Gemma 4 E2B AI Output</span>
+              <span>{t('originalAiOutput')}</span>
             </div>
-            <span className="text-[10px] font-mono text-slate-400">Audited</span>
+            <span className="text-[10px] font-mono text-slate-400">{t('auditedBadge')}</span>
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-800">
             <div>
-              <span className="text-slate-400 text-[11px] block">AI Suggested Type:</span>
+              <span className="text-slate-400 text-[11px] block">{t('aiSuggestedTypeLabel')}</span>
               <span className="font-semibold text-slate-200 capitalize">
-                {report.aiSuggestedType || 'N/A'}
+                {report.aiSuggestedType ? hazardLabel(report.aiSuggestedType) : 'N/A'}
               </span>
             </div>
             <div>
-              <span className="text-slate-400 text-[11px] block">AI Suggested Severity:</span>
+              <span className="text-slate-400 text-[11px] block">{t('aiSuggestedSeverityLabel')}</span>
               <span className="font-semibold text-slate-200 capitalize">
-                {report.aiSuggestedSeverity || 'N/A'}
+                {report.aiSuggestedSeverity ? severityLabel(report.aiSuggestedSeverity) : 'N/A'}
               </span>
             </div>
           </div>
@@ -243,9 +243,9 @@ export default function ReportDetailPage() {
         <div className="bg-[#161b24] border border-slate-800 rounded-xl p-4 space-y-3 shadow-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-              Supervisor Actions
+              {t('supervisorActions')}
             </span>
-            <span className="text-[10px] font-mono text-slate-400">Status Update</span>
+            <span className="text-[10px] font-mono text-slate-400">{t('statusUpdate')}</span>
           </div>
           <div className="grid grid-cols-3 gap-2">
             <Button
@@ -257,7 +257,7 @@ export default function ReportDetailPage() {
                 report.inspectionStatus === 'acknowledged' ? 'border-amber-500/50 text-amber-400 font-semibold' : ''
               }`}
             >
-              <Eye className="h-3.5 w-3.5 mr-1" /> Acknowledge
+              <Eye className="h-3.5 w-3.5 mr-1" /> {t('actionAcknowledge')}
             </Button>
             <Button
               type="button"
@@ -268,7 +268,7 @@ export default function ReportDetailPage() {
                 report.inspectionStatus === 'inspection_required' ? 'border-orange-500 font-semibold' : ''
               }`}
             >
-              <AlertTriangle className="h-3.5 w-3.5 mr-1 text-orange-400" /> Require Insp.
+              <AlertTriangle className="h-3.5 w-3.5 mr-1 text-orange-400" /> {t('actionRequireInsp')}
             </Button>
             <Button
               type="button"
@@ -279,7 +279,7 @@ export default function ReportDetailPage() {
                 report.inspectionStatus === 'resolved' ? 'border-emerald-500 font-semibold' : ''
               }`}
             >
-              <CheckCircle2 className="h-3.5 w-3.5 mr-1 text-emerald-400" /> Resolved
+              <CheckCircle2 className="h-3.5 w-3.5 mr-1 text-emerald-400" /> {t('actionResolved')}
             </Button>
           </div>
         </div>
@@ -288,27 +288,27 @@ export default function ReportDetailPage() {
         <div className="bg-[#161b24] border border-slate-800 rounded-xl p-4 space-y-2 text-xs shadow-sm">
           <div className="font-semibold text-slate-300 flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
             <Layers className="h-3.5 w-3.5 text-slate-400" />
-            Alignment & Device Telemetry
+            {t('telemetryTitle')}
           </div>
           <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-400 pt-1 border-t border-slate-800">
             <div>
-              <span className="text-slate-500 block">Section:</span>
+              <span className="text-slate-500 block">{t('sectionLabel')}</span>
               <span className="font-medium text-slate-200 capitalize">
-                {report.section.replace('-', ' → ')}
+                {sectionLabel(report.section)}
               </span>
             </div>
             <div>
-              <span className="text-slate-500 block">GPS Coordinates:</span>
+              <span className="text-slate-500 block">{t('gpsCoordsLabel')}</span>
               <span className="font-mono text-slate-200">
                 {report.latitude.toFixed(4)}°N, {report.longitude.toFixed(4)}°E
               </span>
             </div>
             <div>
-              <span className="text-slate-500 block">GPS Accuracy:</span>
+              <span className="text-slate-500 block">{t('gpsAccuracyLabel')}</span>
               <span className="text-slate-200">±{Math.round(report.accuracy)} meters</span>
             </div>
             <div>
-              <span className="text-slate-500 block">Sync Attempts:</span>
+              <span className="text-slate-500 block">{t('syncAttemptsLabel')}</span>
               <span className="text-slate-200">{report.retryCount}</span>
             </div>
           </div>

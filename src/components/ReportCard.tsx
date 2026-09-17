@@ -35,37 +35,11 @@ const HAZARD_ICONS: Record<string, LucideIcon> = {
   other: Construction,
 };
 
-function formatTimestamp(timestamp: string): string {
-  const date = new Date(timestamp);
-  if (Number.isNaN(date.getTime())) return timestamp;
-
-  // Check if today
-  const today = new Date();
-  const isToday =
-    date.getDate() === today.getDate() &&
-    date.getMonth() === today.getMonth() &&
-    date.getFullYear() === today.getFullYear();
-
-  if (isToday) {
-    return `Today, ${date.toLocaleString('en-IN', {
-      hour: '2-digit',
-      minute: '2-digit',
-    })}`;
-  }
-
-  return date.toLocaleString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
-
 export default function ReportCard({
   report,
   onClick,
 }: ReportCardProps) {
-  const { t, hazardLabel, severityLabel, sectionLabel } = useLanguage();
+  const { t, hazardLabel, severityLabel, sectionLabel, formatDate } = useLanguage();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -157,7 +131,7 @@ export default function ReportCard({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1">
                 <Clock className="h-3 w-3 shrink-0" />
-                <span>{formatTimestamp(report.timestamp)}</span>
+                <span>{formatDate(report.timestamp)}</span>
               </div>
               <StatusBadge status={report.inspectionStatus} size="sm" />
             </div>
@@ -180,7 +154,7 @@ export default function ReportCard({
           <>
             <CheckCircle2 className="h-3.5 w-3.5" style={{ color: 'var(--tg-sync-synced)' }} />
             <span style={{ color: 'var(--tg-sync-synced)' }}>
-              {t('allSynced')} {report.syncTimestamp ? `· ${formatTimestamp(report.syncTimestamp)}` : ''}
+              {t('allSynced')} {report.syncTimestamp ? `· ${formatDate(report.syncTimestamp)}` : ''}
             </span>
           </>
         )}
@@ -205,7 +179,7 @@ export default function ReportCard({
           <>
             <AlertTriangle className="h-3.5 w-3.5" style={{ color: 'var(--tg-sync-failed)' }} />
             <span style={{ color: 'var(--tg-sync-failed)' }}>
-              {t('syncFailed')} {report.retryCount ? `· Retried ${report.retryCount} times` : ''}
+              {t('syncFailed')} {report.retryCount ? `· ${report.retryCount}x` : ''}
             </span>
           </>
         )}

@@ -12,6 +12,7 @@ interface LanguageContextValue {
   severityLabel: (severity: Severity | string) => string;
   statusLabel: (status: InspectionStatus | string) => string;
   sectionLabel: (section: string) => string;
+  formatDate: (timestamp: string | Date) => string;
 }
 
 const LanguageContext = createContext<LanguageContextValue | undefined>(undefined);
@@ -95,6 +96,37 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     };
   }, [language]);
 
+  const formatDate = useMemo(() => {
+    const locale = language === 'bn' ? 'bn-IN' : language === 'ne' ? 'ne-NP' : 'en-IN';
+    const dict = translations[language] || translations.en;
+    const todayLabel = dict.today || 'Today';
+
+    return (timestamp: string | Date): string => {
+      const date = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
+      if (Number.isNaN(date.getTime())) return String(timestamp);
+
+      const now = new Date();
+      const isToday =
+        date.getDate() === now.getDate() &&
+        date.getMonth() === now.getMonth() &&
+        date.getFullYear() === now.getFullYear();
+
+      if (isToday) {
+        return `${todayLabel}, ${date.toLocaleString(locale, {
+          hour: '2-digit',
+          minute: '2-digit',
+        })}`;
+      }
+
+      return date.toLocaleString(locale, {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    };
+  }, [language]);
+
   const value = useMemo(
     () => ({
       language,
@@ -104,8 +136,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       severityLabel,
       statusLabel,
       sectionLabel,
+      formatDate,
     }),
-    [language, t, hazardLabel, severityLabel, statusLabel, sectionLabel]
+    [language, t, hazardLabel, severityLabel, statusLabel, sectionLabel, formatDate]
   );
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
@@ -132,6 +165,16 @@ export function useLanguage() {
         return translations.en[key] || status;
       },
       sectionLabel: (section: string) => section.replace('-', ' → '),
+      formatDate: (timestamp: string | Date) => {
+        const date = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
+        if (Number.isNaN(date.getTime())) return String(timestamp);
+        return date.toLocaleString('en-IN', {
+          day: '2-digit',
+          month: 'short',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+      },
     };
   }
   return context;

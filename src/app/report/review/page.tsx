@@ -21,13 +21,16 @@ import HazardSelector from '@/components/HazardSelector';
 import SeverityBadge from '@/components/SeverityBadge';
 import ModelSettingsModal from '@/components/ModelSettingsModal';
 import HazardIcon from '@/components/HazardIcon';
+import LanguageSelector from '@/components/LanguageSelector';
 import { useReport } from '@/lib/ReportContext';
 import { analyzeHazard, isLLMAvailable } from '@/lib/llm';
 import { saveReport } from '@/lib/storage';
 import { HazardReport, HazardType, Severity } from '@/lib/types';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function ReviewReportPage() {
   const router = useRouter();
+  const { t, hazardLabel, severityLabel } = useLanguage();
   const { draft, clearDraft } = useReport();
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -91,7 +94,7 @@ export default function ReviewReportPage() {
     } catch (err) {
       console.error('Error during AI review pass:', err);
       // Fallback
-      setUserNote('Visual inspection on DHR alignment.');
+      setUserNote(t('visualInspectionFallback'));
     } finally {
       setIsAnalyzing(false);
     }
@@ -152,14 +155,15 @@ export default function ReviewReportPage() {
           href="/report/new"
           className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white"
         >
-          <ArrowLeft className="h-4 w-4" /> Retake
+          <ArrowLeft className="h-4 w-4" /> {t('retake')}
         </Link>
         <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
           <ShieldCheck className="h-4 w-4" />
-          <span>Human-in-the-Loop Review</span>
+          <span>{t('humanReviewTitle')}</span>
         </div>
-        <div className="w-12 text-right">
-          <span className="text-[10px] font-mono text-slate-400">STEP 2/2</span>
+        <div className="flex items-center gap-2">
+          <LanguageSelector compact />
+          <span className="text-[10px] font-mono text-slate-400">{t('stepIndicator')}</span>
         </div>
       </header>
 
@@ -192,11 +196,11 @@ export default function ReviewReportPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-bold text-amber-400">
               <Sparkles className="h-4 w-4" />
-              <span>Gemma 4 E2B AI Suggestions</span>
+              <span>{t('gemmaAiTitle')}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 font-semibold border border-amber-500/20">
-                {isLLMAvailable() ? 'WebGPU On-Device' : 'Standard Baseline'}
+                {isLLMAvailable() ? t('webgpuOnDevice') : t('standardBaseline')}
               </span>
               <button
                 type="button"
@@ -212,19 +216,19 @@ export default function ReviewReportPage() {
           {isAnalyzing ? (
             <div className="py-4 flex flex-col items-center justify-center text-center space-y-2 text-amber-400">
               <Cpu className="h-6 w-6 animate-spin text-amber-400" />
-              <p className="text-xs font-medium text-slate-300">Analyzing hazard & drafting observational note...</p>
+              <p className="text-xs font-medium text-slate-300">{t('analyzingHazard')}</p>
             </div>
           ) : hasAnalyzed ? (
             <div className="space-y-2.5 text-xs">
               <div className="flex items-center justify-between pt-1 border-t border-slate-800">
-                <span className="text-slate-400 font-medium">Suggested Hazard:</span>
+                <span className="text-slate-400 font-medium">{t('suggestedHazard')}</span>
                 <span className="font-semibold text-slate-100 capitalize flex items-center gap-1.5">
                   <HazardIcon type={aiType} className="h-4 w-4 text-amber-400" />
-                  {aiType.replace('_', ' ')}
+                  {hazardLabel(aiType)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-slate-400 font-medium">Suggested Severity:</span>
+                <span className="text-slate-400 font-medium">{t('suggestedSeverity')}</span>
                 <SeverityBadge severity={aiSeverity} size="sm" />
               </div>
               <div className="pt-1.5 border-t border-slate-800">
@@ -234,12 +238,12 @@ export default function ReviewReportPage() {
               </div>
             </div>
           ) : (
-            <p className="text-xs text-slate-400">AI analysis ready. Review fields below.</p>
+            <p className="text-xs text-slate-400">{t('aiAnalysisReady')}</p>
           )}
 
           <div className="pt-1 flex items-center gap-1.5 text-[10px] text-slate-400 font-medium">
             <AlertCircle className="h-3 w-3 text-amber-400 shrink-0" />
-            <span>AI assists only. Gangman holds complete authority over final report.</span>
+            <span>{t('aiDisclaimer')}</span>
           </div>
         </div>
 
@@ -268,21 +272,21 @@ export default function ReviewReportPage() {
           >
             {saveSuccess ? (
               <>
-                <Check className="h-5 w-5" /> Saved to Offline Queue!
+                <Check className="h-5 w-5" /> {t('savedToQueue')}
               </>
             ) : isSaving ? (
               <>
                 <div className="h-5 w-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                Saving to Logbook...
+                {t('savingLogbook')}
               </>
             ) : (
               <>
-                <ShieldCheck className="h-5 w-5" /> Confirm & Save Report
+                <ShieldCheck className="h-5 w-5" /> {t('confirmAndSave')}
               </>
             )}
           </Button>
           <p className="text-[11px] text-center text-slate-400 mt-2">
-            Stores securely in local IndexedDB. Syncs when station Wi-Fi/signal returns.
+            {t('localStoreNotice')}
           </p>
         </div>
       </main>
