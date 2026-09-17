@@ -5,10 +5,12 @@ import { CheckCircle2, CircleAlert, CloudOff, RefreshCw, Wifi } from 'lucide-rea
 import { toast } from 'sonner';
 import { getFailedCount, getPendingCount } from '@/lib/storage';
 import { syncNow } from '@/lib/sync';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface SyncButtonProps { onSyncComplete?: () => void; }
 
 export default function SyncButton({ onSyncComplete }: SyncButtonProps) {
+  const { t } = useLanguage();
   const [pending, setPending] = useState(0);
   const [failed, setFailed] = useState(0);
   const [syncing, setSyncing] = useState(false);
@@ -35,24 +37,24 @@ export default function SyncButton({ onSyncComplete }: SyncButtonProps) {
     try {
       const result = await syncNow((completed, total) => setProgress({ completed, total }));
       await refresh(); onSyncComplete?.();
-      if (result.failed) toast.warning(`${result.failed} report${result.failed === 1 ? '' : 's'} need another retry.`);
-      else if (result.synced) toast.success(`${result.synced} report${result.synced === 1 ? '' : 's'} synced.`);
+      if (result.failed) toast.warning(`${result.failed} ${t('reportsFailedCount')}`);
+      else if (result.synced) toast.success(`${result.synced} ${t('syncSuccess')}`);
     } catch (error) {
       console.error('Sync error:', error);
-      toast.error('Sync could not start. Your reports remain on this device.');
+      toast.error(t('syncFailed'));
     } finally { setSyncing(false); setProgress(null); }
   }
 
   if (!online) return <div className="flex gap-3" role="status" aria-live="polite">
     <CloudOff className="mt-0.5 h-5 w-5 shrink-0" style={{ color: 'var(--tg-sync-pending)' }} />
-    <div><p className="font-semibold" style={{ color: 'var(--tg-on-surface)' }}>Offline — reports are safe</p><p className="mt-0.5 text-sm" style={{ color: 'var(--tg-on-surface-variant)' }}>{loaded ? `${queued} report${queued === 1 ? '' : 's'} stored on this device.` : 'Checking reports stored on this device.'} Sync will resume when connectivity returns.</p></div>
+    <div><p className="font-semibold" style={{ color: 'var(--tg-on-surface)' }}>{t('offlineSafeNotice')}</p><p className="mt-0.5 text-sm" style={{ color: 'var(--tg-on-surface-variant)' }}>{loaded ? `${queued} ${t('syncSafeStored')}` : t('syncChecking')}</p></div>
   </div>;
 
   return <div className="flex items-center justify-between gap-4" role="status" aria-live="polite">
     <div className="min-w-0"><p className="flex items-center gap-1.5 text-sm font-semibold" style={{ color: 'var(--tg-on-surface)' }}>
       {syncing ? <RefreshCw className="tg-spin h-4 w-4" /> : failed ? <CircleAlert className="h-4 w-4" style={{ color: 'var(--tg-sync-failed)' }} /> : queued ? <Wifi className="h-4 w-4" style={{ color: 'var(--tg-primary)' }} /> : <CheckCircle2 className="h-4 w-4" style={{ color: 'var(--tg-sync-synced)' }} />}
-      {syncing ? `Syncing${progress?.total ? ` · ${progress.completed} of ${progress.total}` : '…'}` : !loaded ? 'Checking device reports…' : failed ? `${failed} report${failed === 1 ? '' : 's'} failed` : queued ? `${queued} report${queued === 1 ? '' : 's'} waiting` : 'All reports synced'}
-    </p><p className="mt-0.5 text-xs" style={{ color: 'var(--tg-on-surface-variant)' }}>{!loaded ? 'Reading reports saved on this device.' : failed ? 'Retry failed reports when you are ready.' : queued ? 'Ready to send to the control desk.' : 'No action needed right now.'}</p></div>
-    {queued > 0 && <button type="button" onClick={handleSync} disabled={syncing} className="touch-target shrink-0 rounded-xl px-4 text-sm font-semibold disabled:opacity-60" style={{ backgroundColor: 'var(--tg-primary)', color: 'var(--tg-on-primary)' }}>{syncing ? 'Syncing' : failed ? 'Retry' : 'Sync now'}</button>}
+      {syncing ? `${t('syncingProgress')}${progress?.total ? ` · ${progress.completed}/${progress.total}` : ''}` : !loaded ? t('syncChecking') : failed ? `${failed} ${t('reportsFailedCount')}` : queued ? `${queued} ${t('waitingBadge')}` : t('allSynced')}
+    </p><p className="mt-0.5 text-xs" style={{ color: 'var(--tg-on-surface-variant)' }}>{!loaded ? t('readingReports') : failed ? t('retryFailedReports') : queued ? t('syncWaitingControl') : t('syncNoAction')}</p></div>
+    {queued > 0 && <button type="button" onClick={handleSync} disabled={syncing} className="touch-target shrink-0 rounded-xl px-4 text-sm font-semibold disabled:opacity-60" style={{ backgroundColor: 'var(--tg-primary)', color: 'var(--tg-on-primary)' }}>{syncing ? t('syncingProgress') : failed ? t('syncRetry') : t('syncNow')}</button>}
   </div>;
 }

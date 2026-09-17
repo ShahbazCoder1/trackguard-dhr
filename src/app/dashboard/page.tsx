@@ -8,49 +8,62 @@ import type { HazardReport, HazardType, InspectionStatus, Severity } from '@/lib
 import BottomNav from '@/components/BottomNav';
 import ConnectivityBanner from '@/components/ConnectivityBanner';
 import ReportCard from '@/components/ReportCard';
-
-const hazards = [
-  ['all', 'All hazards'],
-  ['slip', 'Slip'],
-  ['rockfall', 'Rockfall'],
-  ['blocked_drain', 'Drain'],
-  ['damaged_wall', 'Wall'],
-  ['track_defect', 'Track defect'],
-  ['vegetation', 'Vegetation'],
-  ['other', 'Other'],
-];
-
-const severities = [
-  ['all', 'All severity'],
-  ['low', 'Low'],
-  ['medium', 'Medium'],
-  ['high', 'High'],
-  ['critical', 'Critical'],
-];
-
-const statuses = [
-  ['all', 'All status'],
-  ['open', 'Open'],
-  ['acknowledged', 'Acknowledged'],
-  ['inspection_required', 'Inspection required'],
-  ['resolved', 'Resolved'],
-];
-
-const sections = [
-  ['all', 'All sections'],
-  ['kurseong-ghum', 'Kurseong → Ghum'],
-  ['ghum-darjeeling', 'Ghum → Darjeeling'],
-  ['Kurseong → Ghum', 'Kurseong → Ghum'],
-  ['Ghum → Darjeeling', 'Ghum → Darjeeling'],
-];
+import LanguageSelector from '@/components/LanguageSelector';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function DashboardPage() {
+  const { t, hazardLabel, severityLabel, statusLabel, sectionLabel } = useLanguage();
   const [reports, setReports] = useState<HazardReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [type, setType] = useState('all');
   const [severity, setSeverity] = useState('all');
   const [status, setStatus] = useState('all');
   const [section, setSection] = useState('all');
+
+  const hazards = useMemo(
+    () => [
+      ['all', t('allHazards')],
+      ['slip', hazardLabel('slip')],
+      ['rockfall', hazardLabel('rockfall')],
+      ['blocked_drain', hazardLabel('blocked_drain')],
+      ['damaged_wall', hazardLabel('damaged_wall')],
+      ['track_defect', hazardLabel('track_defect')],
+      ['vegetation', hazardLabel('vegetation')],
+      ['other', hazardLabel('other')],
+    ],
+    [t, hazardLabel]
+  );
+
+  const severities = useMemo(
+    () => [
+      ['all', t('allSeverities')],
+      ['low', severityLabel('low')],
+      ['medium', severityLabel('medium')],
+      ['high', severityLabel('high')],
+      ['critical', severityLabel('critical')],
+    ],
+    [t, severityLabel]
+  );
+
+  const statuses = useMemo(
+    () => [
+      ['all', t('allStatuses')],
+      ['open', statusLabel('open')],
+      ['acknowledged', statusLabel('acknowledged')],
+      ['inspection_required', statusLabel('inspection_required')],
+      ['resolved', statusLabel('resolved')],
+    ],
+    [t, statusLabel]
+  );
+
+  const sections = useMemo(
+    () => [
+      ['all', t('allSections')],
+      ['kurseong-ghum', sectionLabel('kurseong-ghum')],
+      ['ghum-darjeeling', sectionLabel('ghum-darjeeling')],
+    ],
+    [t, sectionLabel]
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -102,43 +115,46 @@ export default function DashboardPage() {
           <header className="mb-6 flex items-start justify-between">
             <div>
               <p className="text-sm font-medium" style={{ color: 'var(--tg-primary)' }}>
-                Control overview
+                {t('controlOverview')}
               </p>
               <h1 className="mt-1 text-3xl font-bold tracking-tight" style={{ color: 'var(--tg-on-surface)' }}>
-                Dashboard
+                {t('dashboardHeader')}
               </h1>
               <p className="mt-1 text-sm" style={{ color: 'var(--tg-on-surface-variant)' }}>
-                DHR track inspection status
+                {t('dashboardSub')}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={load}
-              className="touch-target rounded-xl border p-3 transition-colors"
-              style={{
-                borderColor: 'var(--tg-outline)',
-                backgroundColor: 'var(--tg-surface-container)',
-                color: 'var(--tg-on-surface)',
-              }}
-              aria-label="Refresh dashboard"
-            >
-              <RotateCw className={loading ? 'tg-spin h-5 w-5' : 'h-5 w-5'} />
-            </button>
+            <div className="flex items-center gap-2">
+              <LanguageSelector compact />
+              <button
+                type="button"
+                onClick={load}
+                className="touch-target rounded-xl border p-3 transition-colors"
+                style={{
+                  borderColor: 'var(--tg-outline)',
+                  backgroundColor: 'var(--tg-surface-container)',
+                  color: 'var(--tg-on-surface)',
+                }}
+                aria-label="Refresh dashboard"
+              >
+                <RotateCw className={loading ? 'tg-spin h-5 w-5' : 'h-5 w-5'} />
+              </button>
+            </div>
           </header>
 
           <section className="mb-7">
             <div className="mb-3 flex items-center gap-2">
               <BarChart3 className="h-5 w-5" style={{ color: 'var(--tg-primary)' }} />
               <h2 className="font-bold" style={{ color: 'var(--tg-on-surface)' }}>
-                Track status
+                {t('trackStatus')}
               </h2>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-              <Metric label="Total reports" value={reports.length} tone="neutral" />
-              <Metric label="Open" value={count('open')} tone="open" />
-              <Metric label="Inspection required" value={count('inspection_required')} tone="inspection" />
-              <Metric label="Acknowledged" value={count('acknowledged')} tone="acknowledged" />
-              <Metric label="Resolved" value={count('resolved')} tone="resolved" />
+              <Metric label={t('totalReports')} value={reports.length} tone="neutral" />
+              <Metric label={statusLabel('open')} value={count('open')} tone="open" />
+              <Metric label={statusLabel('inspection_required')} value={count('inspection_required')} tone="inspection" />
+              <Metric label={statusLabel('acknowledged')} value={count('acknowledged')} tone="acknowledged" />
+              <Metric label={statusLabel('resolved')} value={count('resolved')} tone="resolved" />
             </div>
           </section>
 
@@ -147,7 +163,7 @@ export default function DashboardPage() {
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="h-5 w-5" style={{ color: 'var(--tg-primary)' }} />
                 <h2 className="font-bold" style={{ color: 'var(--tg-on-surface)' }}>
-                  Filters
+                  {t('filters')}
                 </h2>
                 {activeFilters > 0 && (
                   <span
@@ -168,26 +184,26 @@ export default function DashboardPage() {
                   className="min-h-11 px-2 text-sm font-semibold"
                   style={{ color: 'var(--tg-primary)' }}
                 >
-                  Clear
+                  {t('clearFilters')}
                 </button>
               )}
             </div>
             <div className="chips-scroll flex gap-2 overflow-x-auto pb-1">
-              <Filter label="Hazard" value={type} setValue={setType} options={hazards} />
-              <Filter label="Severity" value={severity} setValue={setSeverity} options={severities} />
-              <Filter label="Status" value={status} setValue={setStatus} options={statuses} />
-              <Filter label="Section" value={section} setValue={setSection} options={sections} />
+              <Filter label={t('allHazards')} value={type} setValue={setType} options={hazards} />
+              <Filter label={t('allSeverities')} value={severity} setValue={setSeverity} options={severities} />
+              <Filter label={t('allStatuses')} value={status} setValue={setStatus} options={statuses} />
+              <Filter label={t('allSections')} value={section} setValue={setSection} options={sections} />
             </div>
           </section>
 
           <section>
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-lg font-bold" style={{ color: 'var(--tg-on-surface)' }}>
-                Recent hazards
+                {t('recentHazards')}
               </h2>
               {!loading && (
                 <span className="text-sm" style={{ color: 'var(--tg-on-surface-variant)' }}>
-                  {filtered.length} shown
+                  {filtered.length} {t('reportsShown')}
                 </span>
               )}
             </div>
@@ -210,7 +226,7 @@ export default function DashboardPage() {
                 }}
               >
                 <p className="font-semibold" style={{ color: 'var(--tg-on-surface)' }}>
-                  No reports match these filters
+                  {t('noMatchingReports')}
                 </p>
                 <button
                   type="button"
@@ -218,7 +234,7 @@ export default function DashboardPage() {
                   className="mt-3 min-h-11 px-3 text-sm font-semibold"
                   style={{ color: 'var(--tg-primary)' }}
                 >
-                  Clear filters
+                  {t('clearFilters')}
                 </button>
               </div>
             ) : (
@@ -298,6 +314,7 @@ function Filter({
 }
 
 function SectionSummary({ reports }: { reports: HazardReport[] }) {
+  const { t, sectionLabel } = useLanguage();
   const groups = reports.reduce<Record<string, number>>(
     (totals, report) => ({
       ...totals,
@@ -314,13 +331,13 @@ function SectionSummary({ reports }: { reports: HazardReport[] }) {
       }}
     >
       <h3 className="font-bold" style={{ color: 'var(--tg-on-surface)' }}>
-        Sections
+        {t('sectionsTitle')}
       </h3>
       <div className="mt-3 space-y-3">
         {Object.entries(groups).map(([name, total]) => (
           <div key={name} className="flex items-center justify-between gap-3">
             <span className="text-sm" style={{ color: 'var(--tg-on-surface-variant)' }}>
-              {name}
+              {sectionLabel(name)}
             </span>
             <span
               className="rounded-full px-2 py-0.5 text-xs font-bold"

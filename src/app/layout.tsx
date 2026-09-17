@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import BottomNav from "@/components/BottomNav";
+import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,12 +48,15 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
     >
       <body className="min-h-full flex flex-col bg-[#0f131a] text-slate-100 selection:bg-amber-500/30 selection:text-amber-200">
-        {/* <!-- Debashish: SW registration here --> */}
-        <div className="flex-1 w-full flex flex-col">
-          {children}
-        </div>
-        <BottomNav />
+        <LanguageProvider>
+          {/* <!-- Debashish: SW registration here --> */}
+          <div className="flex-1 w-full flex flex-col">
+            {children}
+          </div>
+          <BottomNav />
+        </LanguageProvider>
       </body>
     </html>
   );
 }
+

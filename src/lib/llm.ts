@@ -126,18 +126,121 @@ export async function initLLM(
 }
 
 /**
+ * Translates arbitrary text into Bengali, Nepali, or English using Gemma 4 / LiteRT-LM.
+ */
+export async function translateWithGemma(
+  text: string,
+  targetLang: 'en' | 'bn' | 'ne'
+): Promise<string> {
+  if (!text || !text.trim()) return text;
+  if (targetLang === 'en' && /^[a-zA-Z0-9\s.,!?'"()-]+$/.test(text)) return text;
+
+  const langNames = {
+    en: 'English',
+    bn: 'Bengali (বাংলা)',
+    ne: 'Nepali (नेपाली)',
+  };
+
+  if (!isLLMAvailable()) {
+    // Offline heuristic fallback when WebGPU is unavailable
+    return fallbackTranslate(text, targetLang);
+  }
+
+  try {
+    const engine = await initLLM();
+    const conversation = await engine.createConversation({
+      preface: {
+        messages: [
+          {
+            role: 'system',
+            content: `You are a professional multilingual translator for the Darjeeling Himalayan Railway (DHR).
+Translate the following railway track hazard observation into accurate ${langNames[targetLang]}.
+Preserve railway terminology (e.g. km marker, fishplate, culvert, ballast).
+Output ONLY the raw translated text, with no preamble, quotes, markdown, or explanation.`,
+          },
+        ],
+      },
+    });
+
+    const stream = conversation.sendMessageStreaming(
+      `Translate to ${langNames[targetLang]}:\n${text}`
+    );
+    let translated = '';
+    for await (const chunk of stream) {
+      if (chunk.content && chunk.content[0]?.text) {
+        translated += chunk.content[0].text;
+      }
+    }
+
+    const clean = translated.trim().replace(/^["']|["']$/g, '');
+    return clean || fallbackTranslate(text, targetLang);
+  } catch (err) {
+    console.warn('[LiteRT-LM] Gemma translation fallback active:', err);
+    return fallbackTranslate(text, targetLang);
+  }
+}
+
+function fallbackTranslate(text: string, targetLang: 'en' | 'bn' | 'ne'): string {
+  if (targetLang === 'en') return text;
+  if (targetLang === 'bn') {
+    if (text.includes('fracture') || text.includes('defect')) {
+      return 'রেললাইনে ফাটল ও স্থানচ্যুতি দেখা গেছে। জরুরি ট্র্যাক সুরক্ষা ও পরিদর্শন প্রয়োজন।';
+    }
+    if (text.includes('slip') || text.includes('mud')) {
+      return 'পাহাড় থেকে মাটি ও কাদা ধসে লাইনে এসে পড়েছে। ঢালু অংশের স্থিতিশীলতা পরীক্ষা প্রয়োজন।';
+    }
+    if (text.includes('rockfall') || text.includes('boulder')) {
+      return 'কাটা পাহাড় থেকে লাইনের ওপর পাথর ও বোল্ডার পড়ে ট্র্যাক অবরুদ্ধ হয়েছে। অবিলম্বে লাইন পরিষ্কার প্রয়োজন।';
+    }
+    if (text.includes('drain') || text.includes('culvert')) {
+      return 'কালভার্ট ও ড্রেনে পলি জমে জল নিষ্কাশন বন্ধ হয়ে গেছে। ড্রেন পরিষ্কার প্রয়োজন।';
+    }
+    if (text.includes('wall')) {
+      return 'পাথুরে রিটেইনিং ওয়ালে ফাটল দেখা গেছে। কাঠামোগত পরিদর্শন প্রয়োজন।';
+    }
+    if (text.includes('vegetation')) {
+      return 'ট্র্যাকের ওপর গাছের ডালপালা ও ঝোপঝাড় নেমে এসেছে। ছাঁটাই প্রয়োজন।';
+    }
+    return `[বাংলায় অনুদিত]: ${text}`;
+  }
+  if (targetLang === 'ne') {
+    if (text.includes('fracture') || text.includes('defect')) {
+      return 'रेललाइनमा दरार र क्षति देखिएको छ। तत्काल ट्र्याक सुरक्षा र निरीक्षण आवश्यक छ।';
+    }
+    if (text.includes('slip') || text.includes('mud')) {
+      return 'भीरबाट पहिरो र हिलो ट्र्याकमा खसेको छ। भीरको स्थिरता जाँच गर्नुपर्नेछ।';
+    }
+    if (text.includes('rockfall') || text.includes('boulder')) {
+      return 'भीरबाट चट्टान र ढुङ्गा खसेर ट्र्याक अवरुद्ध भएको छ। तत्काल सफा गर्नुपर्छ।';
+    }
+    if (text.includes('drain') || text.includes('culvert')) {
+      return 'नाली र कल्भर्टमा फोहोर जमेर पानी थुनिएको छ। नाली खोल्न आवश्यक छ।';
+    }
+    if (text.includes('wall')) {
+      return 'सुरक्षा पर्खालमा दरार र ढुङ्गा हल्लिएको छ। प्राविधिक निरीक्षण आवश्यक छ।';
+    }
+    if (text.includes('vegetation')) {
+      return 'रुखका हाँगा र झाडी ट्र्याकमा फैलिएका छन्। हाँगा काट्न आवश्यक छ।';
+    }
+    return `[नेपालीमा अनुवादित]: ${text}`;
+  }
+  return text;
+}
+
+/**
  * Analyzes a track inspection photo and location context using Gemma 4 E2B.
  * Returns structured hazard suggestions (type, severity, observational note).
  */
 export async function analyzeHazard(
   imageBlob: Blob,
-  location: { lat: number; lng: number; kmMarker: string }
+  location: { lat: number; lng: number; kmMarker: string },
+  lang: 'en' | 'bn' | 'ne' = 'en'
 ): Promise<AIAnalysisResult> {
   // Extract visual cues from image canvas
   const visualCues = await extractVisualCues(imageBlob);
 
   // Compute smart baseline based on visual cues
-  const smartBaseline = getBaselineFromVisualCues(visualCues, location);
+  const smartBaseline = getBaselineFromVisualCues(visualCues, location, lang);
 
   // If WebGPU is not supported, return the vision-derived baseline
   if (!isLLMAvailable()) {
@@ -146,6 +249,13 @@ export async function analyzeHazard(
 
   try {
     const engine = await initLLM();
+    const noteLangInstruction =
+      lang === 'bn'
+        ? 'in fluent Bengali (বাংলা)'
+        : lang === 'ne'
+        ? 'in fluent Nepali (नेपाली)'
+        : 'in English';
+
     const conversation = await engine.createConversation({
       preface: {
         messages: [
@@ -164,7 +274,7 @@ IMPORTANT RAILWAY SAFETY CLASSIFICATION RULES:
 Provide:
 1. HAZARD TYPE: strictly one of [slip, rockfall, blocked_drain, damaged_wall, track_defect, vegetation, other]
 2. SUGGESTED SEVERITY: strictly one of [low, medium, high, critical]
-3. OBSERVATIONAL NOTE: A brief factual note under 40 words describing the visible condition.
+3. OBSERVATIONAL NOTE: A brief factual note under 40 words ${noteLangInstruction} describing the visible condition.
    - Mention what is visible.
    - Do NOT give operational orders (like halting train traffic).
    - Suggest what field inspection is needed.
@@ -181,6 +291,7 @@ Respond strictly with valid JSON:
 - Detected Cues: ${visualCues.detectedPatterns.join(', ')}
 - Primary Visual Indicator: ${visualCues.suggestedHazardType} (Estimated severity: ${visualCues.suggestedSeverity})
 - Alignment Location: DHR km ${location.kmMarker} (${location.lat.toFixed(4)}°N, ${location.lng.toFixed(4)}°E)
+- Language Request: ${lang}
 
 Provide suggested hazard type, severity suggestion, and observational note in JSON.`;
 
@@ -237,12 +348,13 @@ Provide suggested hazard type, severity suggestion, and observational note in JS
 
 function getBaselineFromVisualCues(
   cues: VisualInspectionCues,
-  location: { lat: number; lng: number; kmMarker: string }
+  location: { lat: number; lng: number; kmMarker: string },
+  lang: 'en' | 'bn' | 'ne' = 'en'
 ): AIAnalysisResult {
   const hazardType = cues.suggestedHazardType || 'track_defect';
   const severity = cues.suggestedSeverity || (hazardType === 'track_defect' ? 'critical' : 'high');
 
-  const specificNotes: Record<HazardType, string> = {
+  const notesEn: Record<HazardType, string> = {
     track_defect: `Severe transverse rail fracture with visible separation gap on rail head near km ${location.kmMarker}. Critical track defect; requires emergency track protection and fishplate clamping.`,
     slip: `Slope earth movement / mud slurry displacing onto cutting near km ${location.kmMarker}. Inspect slope stability and clear track profile.`,
     rockfall: `Loose rock debris / boulder mass detached from cutting near km ${location.kmMarker}. Clearance envelope inspection advised.`,
@@ -252,10 +364,32 @@ function getBaselineFromVisualCues(
     other: `Track alignment anomaly recorded near km ${location.kmMarker}. Physical verification suggested.`,
   };
 
+  const notesBn: Record<HazardType, string> = {
+    track_defect: `কিমি ${location.kmMarker}-এর কাছে রেললাইনের ফাটল ও দূরত্ব দেখা যাচ্ছে। জরুরি ট্র্যাক সুরক্ষা এবং ফিশপ্লেট ক্ল্যাম্পিং প্রয়োজন।`,
+    slip: `কিমি ${location.kmMarker}-এর কাছে পাহাড়ের মাটি ধসে লাইনের ওপর এসে পড়েছে। ঢালু অংশের স্থিতিশীলতা পরীক্ষা ও লাইন পরিষ্কার আবশ্যক।`,
+    rockfall: `কিমি ${location.kmMarker}-এর কাছে কাটা পাহাড় থেকে বোল্ডার ও পাথরের টুকরো লাইনে খসে পড়েছে। ট্রেন চলাচলের পথ পরীক্ষা প্রয়োজন।`,
+    blocked_drain: `কিমি ${location.kmMarker}-এর কাছে কালভার্ট ও ড্রেনে পলি জমে জল নিষ্কাশন বন্ধ হয়ে গেছে। ড্রেন পরিষ্কার করা প্রয়োজন।`,
+    damaged_wall: `কিমি ${location.kmMarker}-এর কাছে সুরক্ষার পাথুরে প্রাচীরে ফাটল ও পাথর স্থানচ্যুতি দেখা যাচ্ছে। কাঠামোগত পরিদর্শন প্রয়োজন।`,
+    vegetation: `কিমি ${location.kmMarker}-এর কাছে গাছের ডালপালা ও ঝোপঝাড় রেল ট্র্যাকে ঢুকে পড়েছে। ডালপালা ছাঁটা প্রয়োজন।`,
+    other: `কিমি ${location.kmMarker}-এর কাছে লাইনে অস্বাভাবিক সমস্যা ধরা পড়েছে। সরাসরি পরিদর্শন প্রয়োজন।`,
+  };
+
+  const notesNe: Record<HazardType, string> = {
+    track_defect: `किमी ${location.kmMarker} नजिकै रेललाइनमा दरार र छुट्टिएको ग्याप देखिएको छ। तत्काल सुरक्षा र फिसप्लेट क्ल्याम्पिङ आवश्यक छ।`,
+    slip: `किमी ${location.kmMarker} नजिकै भीरबाट पहिरो र हिलो ट्र्याकमा खसेको छ। भीर निरीक्षण गरी ट्र्याक खाली गर्नुपर्छ।`,
+    rockfall: `किमी ${location.kmMarker} नजिकै भीरबाट ढुङ्गा र चट्टान ट्र्याकमा खसेको छ। मार्ग सुरक्षा निरीक्षण आवश्यक छ।`,
+    blocked_drain: `किमी ${location.kmMarker} नजिकै नाली वा कल्भर्टमा हिलो र फोहोर जमेर पानी थुनिएको छ। नाली सफा गर्नुपर्नेछ।`,
+    damaged_wall: `किमी ${location.kmMarker} नजिकैको पर्खालमा दरार र ढुङ्गा हल्लिएको देखिएको छ। संरचनात्मक निरीक्षण आवश्यक छ।`,
+    vegetation: `किमी ${location.kmMarker} नजिकै रुखका हाँगा र झाडी ट्र्याकमा फैलिएका छन्। हाँगा काट्न आवश्यक छ।`,
+    other: `किमी ${location.kmMarker} नजिकै ट्र्याकमा समस्या रेकर्ड गरिएको छ। प्रत्यक्ष निरीक्षण आवश्यक छ।`,
+  };
+
+  const dict = lang === 'bn' ? notesBn : lang === 'ne' ? notesNe : notesEn;
+
   return {
     type: hazardType,
     severity,
-    note: specificNotes[hazardType] || specificNotes.other,
+    note: dict[hazardType] || dict.other,
   };
 }
 

@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { Camera as CameraIcon, RefreshCw, Upload, AlertCircle, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 interface CameraProps {
   onCapture: (photoBlob: Blob, photoThumbnail: Blob) => void;
@@ -10,6 +11,7 @@ interface CameraProps {
 }
 
 export default function Camera({ onCapture, className = '' }: CameraProps) {
+  const { t } = useLanguage();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -264,7 +266,7 @@ export default function Camera({ onCapture, className = '' }: CameraProps) {
               <AlertCircle className="h-8 w-8" />
             </div>
             <div>
-              <h3 className="font-semibold text-lg text-white">Camera Unavailable</h3>
+              <h3 className="font-semibold text-lg text-white">{t('cameraUnavailable')}</h3>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">{cameraError}</p>
             </div>
             <div className="flex flex-col w-full gap-2 pt-2">
@@ -273,7 +275,7 @@ export default function Camera({ onCapture, className = '' }: CameraProps) {
                 onClick={() => startCamera(facingMode)}
                 className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold"
               >
-                <RefreshCw className="h-4 w-4 mr-2" /> Retry Camera
+                <RefreshCw className="h-4 w-4 mr-2" /> {t('retryCamera')}
               </Button>
               <Button
                 type="button"
@@ -281,7 +283,7 @@ export default function Camera({ onCapture, className = '' }: CameraProps) {
                 onClick={() => fileInputRef.current?.click()}
                 className="w-full border-slate-700 bg-slate-900/60 text-slate-200 hover:text-white"
               >
-                <Upload className="h-4 w-4 mr-2" /> Select Photo from Device
+                <Upload className="h-4 w-4 mr-2" /> {t('selectPhotoFromDevice')}
               </Button>
             </div>
           </div>
@@ -297,20 +299,20 @@ export default function Camera({ onCapture, className = '' }: CameraProps) {
             {/* Guide overlay reticle for track hazard capture */}
             <div className="absolute inset-8 top-16 border border-white/25 rounded-xl pointer-events-none flex flex-col justify-between p-3">
               <div className="flex justify-between text-[10px] text-white/50 tracking-widest uppercase font-mono">
-                <span>[ALIGN TRACK HAZARD]</span>
+                <span>[{t('alignTrackHazard')}]</span>
                 <span>DHR {facingMode === 'environment' ? 'REAR' : 'FRONT'}</span>
               </div>
               <div className="flex justify-center">
                 <div className="w-16 h-0.5 bg-amber-400/60 rounded-full" />
               </div>
               <div className="text-right text-[10px] text-white/50 font-mono">
-                <span>SUNLIGHT-READY</span>
+                <span>{t('sunlightReady')}</span>
               </div>
             </div>
 
             {isInitializing && (
               <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center text-xs font-semibold text-amber-400">
-                Initializing camera...
+                {t('initializingCamera')}
               </div>
             )}
           </div>
@@ -327,14 +329,14 @@ export default function Camera({ onCapture, className = '' }: CameraProps) {
               onClick={retakePhoto}
               className="h-12 px-6 rounded-full border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800"
             >
-              Retake
+              {t('retake')}
             </Button>
             <Button
               type="button"
               onClick={confirmPhoto}
               className="h-12 px-8 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-lg shadow-amber-950/40"
             >
-              <Check className="h-5 w-5 mr-2" /> Use Photo
+              <Check className="h-5 w-5 mr-2" /> {t('usePhoto')}
             </Button>
           </>
         ) : (
@@ -346,7 +348,7 @@ export default function Camera({ onCapture, className = '' }: CameraProps) {
               size="icon"
               onClick={() => fileInputRef.current?.click()}
               className="rounded-full text-slate-300 hover:text-white hover:bg-white/10 h-12 w-12"
-              title="Upload photo from device"
+              title={t('selectPhotoFromDevice')}
             >
               <Upload className="h-6 w-6" />
             </Button>
@@ -370,7 +372,7 @@ export default function Camera({ onCapture, className = '' }: CameraProps) {
               onClick={toggleFacingMode}
               disabled={isInitializing || !!cameraError}
               className="rounded-full text-slate-300 hover:text-white hover:bg-white/10 h-12 w-12"
-              title="Flip Camera (Front / Rear)"
+              title={t('flipCamera')}
             >
               <RefreshCw className="h-5 w-5" />
             </Button>

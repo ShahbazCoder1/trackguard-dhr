@@ -12,9 +12,12 @@ import BottomNav from '@/components/BottomNav';
 import ConnectivityBanner from '@/components/ConnectivityBanner';
 import ReportCard from '@/components/ReportCard';
 import SyncButton from '@/components/SyncButton';
+import LanguageSelector from '@/components/LanguageSelector';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function QueuePage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [reports, setReports] = useState<HazardReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [online, setOnline] = useState(() => typeof navigator === 'undefined' || navigator.onLine);
@@ -71,22 +74,25 @@ export default function QueuePage() {
                 TrackGuard DHR
               </p>
               <h1 className="mt-1 text-3xl font-bold tracking-tight" style={{ color: 'var(--tg-on-surface)' }}>
-                My reports
+                {t('myReportsHeader')}
               </h1>
               <p className="mt-1 text-sm" style={{ color: 'var(--tg-on-surface-variant)' }}>
-                Track inspection reports saved on this device
+                {t('myReportsSub')}
               </p>
             </div>
-            <span
-              className="mt-1 inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold"
-              style={{
-                backgroundColor: online ? 'var(--tg-sync-synced-container)' : 'var(--tg-surface-container-high)',
-                color: online ? 'var(--tg-sync-synced)' : 'var(--tg-on-surface-variant)',
-              }}
-            >
-              {online ? <Wifi className="h-3.5 w-3.5" /> : <WifiOff className="h-3.5 w-3.5" />}
-              {online ? 'Online' : 'Offline'}
-            </span>
+            <div className="flex items-center gap-2">
+              <LanguageSelector compact />
+              <span
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold"
+                style={{
+                  backgroundColor: online ? 'var(--tg-sync-synced-container)' : 'var(--tg-surface-container-high)',
+                  color: online ? 'var(--tg-sync-synced)' : 'var(--tg-on-surface-variant)',
+                }}
+              >
+                {online ? <Wifi className="h-3.5 w-3.5" /> : <WifiOff className="h-3.5 w-3.5" />}
+                {online ? t('online') : t('offline')}
+              </span>
+            </div>
           </header>
 
           <section
@@ -98,14 +104,14 @@ export default function QueuePage() {
 
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-lg font-bold" style={{ color: 'var(--tg-on-surface)' }}>
-              Recent
+              {t('recentReports')}
             </h2>
             {waiting > 0 && (
               <span
                 className="rounded-full px-2.5 py-1 text-xs font-semibold"
                 style={{ color: 'var(--tg-sync-pending)', backgroundColor: 'var(--tg-sync-pending-container)' }}
               >
-                {waiting} waiting
+                {waiting} {t('waitingBadge')}
               </span>
             )}
           </div>
@@ -127,10 +133,10 @@ export default function QueuePage() {
             >
               <ClipboardList className="mx-auto h-12 w-12" style={{ color: 'var(--tg-primary)' }} />
               <h2 className="mt-4 text-xl font-bold" style={{ color: 'var(--tg-on-surface)' }}>
-                No reports yet
+                {t('noReportsTitle')}
               </h2>
               <p className="mx-auto mt-2 max-w-xs text-sm" style={{ color: 'var(--tg-on-surface-variant)' }}>
-                When you capture a track hazard, it will be saved here safely—even offline.
+                {t('noReportsDesc')}
               </p>
               <Link
                 href="/report/new"
@@ -138,7 +144,7 @@ export default function QueuePage() {
                 style={{ backgroundColor: 'var(--tg-primary)', color: 'var(--tg-on-primary)' }}
               >
                 <FilePlus2 className="h-4 w-4" />
-                Create report
+                {t('createReportButton')}
               </Link>
             </section>
           ) : (

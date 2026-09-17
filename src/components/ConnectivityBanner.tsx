@@ -2,10 +2,12 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { WifiOff, Wifi } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 type ConnectivityState = 'online' | 'offline' | 'reconnected';
 
 export default function ConnectivityBanner() {
+  const { t } = useLanguage();
   const [state, setState] = useState<ConnectivityState>('online');
   const wasOfflineRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -66,7 +68,7 @@ export default function ConnectivityBanner() {
         aria-live="polite"
       >
         <Wifi className="h-4 w-4" aria-hidden="true" />
-        Back online
+        {t('backOnline')}
       </div>
     );
   }
@@ -82,7 +84,7 @@ export default function ConnectivityBanner() {
       aria-live="polite"
     >
       <WifiOff className="h-4 w-4" aria-hidden="true" />
-      You&apos;re offline · Reports are saved on this device
+      {t('offlineBanner')}
     </div>
   );
 }

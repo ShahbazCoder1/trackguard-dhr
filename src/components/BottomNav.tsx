@@ -3,15 +3,17 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, ListTodo, LayoutDashboard, Camera } from 'lucide-react';
-
-const items = [
-  { href: '/', label: 'Home', icon: Home },
-  { href: '/queue', label: 'Reports', icon: ListTodo },
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-];
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { t } = useLanguage();
+
+  const items = [
+    { href: '/', label: t('navHome'), icon: Home },
+    { href: '/queue', label: t('navReports'), icon: ListTodo },
+    { href: '/dashboard', label: t('navDashboard'), icon: LayoutDashboard },
+  ];
 
   return (
     <>
